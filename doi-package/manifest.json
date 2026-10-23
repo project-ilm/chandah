@@ -1,0 +1,32 @@
+{
+  "title": "chandah: Sanskrit C, as Hindawi writes it, through the sutram layers to chandas and back",
+  "version": "2026.10.0",
+  "doi": null,
+  "license": "MIT",
+  "artifacts": [
+    {
+      "name": "chandah-2026.10.0.tar.gz",
+      "size": 151431,
+      "sha256": "1b868afc025f970b713e1f9a7b2dd56945c426a534f31811f06e5d282b54c5ed"
+    },
+    {
+      "name": "CITATION.cff",
+      "size": 428,
+      "sha256": "7d3dc8b6a3531294d489c178151f4b9049d28d435b81bcf918a0036b904b4b14"
+    }
+  ],
+  "metadata_files": [
+    "metadata.json",
+    "zenodo.json",
+    "datacite.json",
+    "codemeta.json",
+    "CITATION.cff"
+  ],
+  "reproducibility": {
+    "checksums": {
+      "chandah-2026.10.0.tar.gz": "1b868afc025f970b713e1f9a7b2dd56945c426a534f31811f06e5d282b54c5ed",
+      "CITATION.cff": "7d3dc8b6a3531294d489c178151f4b9049d28d435b81bcf918a0036b904b4b14"
+    },
+    "tool": "misty-doi"
+  }
+}

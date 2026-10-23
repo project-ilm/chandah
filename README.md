@@ -1,5 +1,7 @@
 # chandah: Sanskrit C through the sutram layers to chandas, and back
 
+DOI: [10.5281/zenodo.23589959](https://doi.org/10.5281/zenodo.23589959)
+
 **chandah** takes a Sanskrit C program, as Hindawi writes it, through the sutram layers (words for every operator,
 katapayadi numerals, samasa, Paninian sandhi, and chhandas in anushtubh, gayatri, trishtubh or jagati), checks that every
 layer comes back exactly, reverts it, and lets Hindawi build and run the original and the reverted program so the outputs

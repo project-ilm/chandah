@@ -1,0 +1,29 @@
+{
+  "metadata": {
+    "title": "chandah: Sanskrit C, as Hindawi writes it, through the sutram layers to chandas and back",
+    "version": "2026.10.0",
+    "upload_type": "software",
+    "access_right": "open",
+    "license": "MIT",
+    "language": "eng",
+    "description": "chandah takes a Sanskrit C program, as Hindawi writes it, through the sutram layers (a word for every operator, katapayadi numerals, samasa, Paninian sandhi, and chhandas in anushtubh, gayatri, trishtubh or jagati), checks that every layer comes back exactly, reverts it, and lets Hindawi build and run the original and the reverted program so their outputs can be compared. The layers are sutram v11, written by Meta AI under the direction of Abhishek Choudhary and kept as given apart from his copyright and two recorded corrections. Its notebook is Hindawi 2026.10's Sanskrit notebook with chandah added. Released on PyPI as chandah-ilm.",
+    "creators": [
+      {
+        "name": "Choudhary, Abhishek",
+        "affiliation": "AyeAI",
+        "orcid": "0009-0002-0684-8320"
+      }
+    ],
+    "keywords": [
+      "Hindawi",
+      "Sanskrit",
+      "sutram",
+      "chhandas",
+      "sandhi",
+      "samasa",
+      "katapayadi",
+      "Project ILM",
+      "programming in Sanskrit"
+    ]
+  }
+}
