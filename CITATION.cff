@@ -1,0 +1,12 @@
+cff-version: 1.2.0
+message: "If you use chandah, please cite it as below."
+title: "chandah: Sanskrit C, as Hindawi writes it, through the sutram layers to chandas and back"
+version: "2026.10.0"
+date-released: 2026-10-23
+license: MIT
+authors:
+  - family-names: Choudhary
+    given-names: Abhishek
+    affiliation: AyeAI
+    orcid: "https://orcid.org/0009-0002-0684-8320"
+repository-code: "https://github.com/project-ilm/chandah"

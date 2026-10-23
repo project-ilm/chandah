@@ -1,0 +1,9 @@
+{
+ "slug": "chandah",
+ "org": "project-ilm",
+ "pages_path": "/docs",
+ "metadata": "misty.json",
+ "gate": "ops/verify.sh",
+ "pypi": "chandah-ilm",
+ "description": "chandah: Sanskrit C, as Hindawi writes it, through the sutram layers to chandas and back, built and run by Hindawi"
+}

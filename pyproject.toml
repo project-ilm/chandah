@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "chandah-ilm"
+version = "2026.10.0"
+description = "chandah: Sanskrit C, as Hindawi writes it, through the sutram layers to chandas and back, built and run by Hindawi"
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE", "NOTICE"]
+authors = [{name = "Abhishek Choudhary", email = "obonac@users.noreply.github.com"}]
+requires-python = ">=3.9"
+dependencies = []
+
+[project.optional-dependencies]
+notebook = ["ipywidgets"]
+
+[project.urls]
+Repository = "https://github.com/project-ilm/chandah"
+Manual = "https://github.com/project-ilm/chandah/blob/main/docs/MANUAL.md"
+
+[project.scripts]
+chandah = "chandah.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["chandah*", "sutram_tool*"]

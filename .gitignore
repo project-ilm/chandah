@@ -1,0 +1,8 @@
+.verify/
+dist/
+build/
+*.egg-info/
+__pycache__/
+*.pyc
+*.reverted.c
+*.reverted.cpp
