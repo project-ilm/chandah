@@ -1,5 +1,5 @@
-# © 1993–2026 Abhishek Choudhary. All rights reserved. AyeAI. Written by Meta AI under his direction (sutram v11),
-# kept as given apart from these lines, the corrections in docs/CORRECTIONS.md and the completion below its marker.
+# © 1993–2026 Abhishek Choudhary. All rights reserved. AyeAI. sutram v11, kept as given apart from these two
+# lines, the corrections in docs/CORRECTIONS.md and the completion below its marker (docs/COMPLETION.md).
 from .parser import parse_source
 from .forward import program_to_sutram
 from .reverse import parse_sutram
@@ -36,7 +36,7 @@ def samasta_to_c(samasta_text: str, mode='line', known_identifiers=None):
     return parse_sutram(sutram)
 
 
-# ===== chandah completion of sutram v11 (23 October 2026): the convenience wrappers carry the whole program =====
+# ===== chandah completion of sutram v11 : the convenience wrappers carry the whole program =====
 def c_to_sutram(src, numeral_mode='katapayadi', samasa_mode=None, apply_sandhi=True):
     from .forward import source_to_sutram
     from .sandhi_samasa import sutram_to_samasta

@@ -1,19 +1,21 @@
 
 
-# ===== chandah completion of sutram v11 (23 October 2026): encode and decode carry the whole program =====
-# The base layer is now source_to_sutram (every token of Sanskrit C or C++); decode returns compilable Sanskrit C.
+# ===== chandah completion of sutram v11: encode and decode carry the whole program, in any language =====
+# The base layer is source_to_sutram (every token of C or C++); decode returns the compilable program.
 # The structure and sandhi layers keep v11's order: structure first, sandhi after it, never before.
 from .forward import source_to_sutram
 from .reverse import sutram_to_source
 from .sandhi_samasa import _splitter, _compound_runs
 
 
-def encode(src: str, numeral_mode='devanagari', structure=None, apply_sandhi=False):
+def encode(src: str, numeral_mode='devanagari', structure=None, apply_sandhi=False, declaration_starters=None,
+           operand_breakers=None, define_directives=None):
     if numeral_mode not in NUMERAL_CHOICES:
         raise ValueError(f"numeral_mode must be one of {NUMERAL_CHOICES}")
     if structure not in STRUCTURE_CHOICES:
         raise ValueError(f"structure must be one of {STRUCTURE_CHOICES}")
-    base_sutram = source_to_sutram(src, numeral_mode=numeral_mode)
+    base_sutram = source_to_sutram(src, numeral_mode=numeral_mode, declaration_starters=declaration_starters,
+                                   operand_breakers=operand_breakers, define_directives=define_directives)
     known_ids = sorted(_collect_identifiers(base_sutram))
     encoded = base_sutram
     if structure is not None and structure.startswith("samasa"):

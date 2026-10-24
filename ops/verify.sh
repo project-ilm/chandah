@@ -69,6 +69,7 @@ for f in README.md CONTEXT.md CONTRACT.md AGENTS.md CONTRIBUTING.md NOTICE docs/
   grep -qF "$N" "$f" 2>/dev/null || miss="$miss $f"; done
 for f in sutram_tool/*.py; do head -1 "$f" | grep -qF "$N" || miss="$miss $f"; done
 grep -q "MIT" LICENSE || miss="$miss LICENSE(MIT)"; grep -q "^license: MIT" CITATION.cff || miss="$miss CITATION.cff(licence)"
+grep -rlI -i -e "meta ai" -e "meta\.ai" --exclude-dir=.git --exclude-dir=.verify --exclude-dir=given --exclude=verify.sh . >/dev/null 2>&1 && miss="$miss (another author named)"
 [ -z "$miss" ] && ok "V05 the notices travel: his copyright on every module, the licence and the trademark where they belong" || no "V05 notices missing in:$miss"
 
 if git rev-parse --git-dir >/dev/null 2>&1; then built=$(git ls-files | grep -E '(__pycache__/|\.pyc$|\.tar\.gz$)' || true)

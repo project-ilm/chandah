@@ -1,6 +1,6 @@
 
 
-# ===== chandah completion of sutram v11 (23 October 2026): compounds that always come back =====
+# ===== chandah completion of sutram v11 : compounds that always come back =====
 # A compound is formed only if the splitter brings back exactly the words it was made of; otherwise the run of words is
 # closed and a new compound begins. The decoder splits each space-separated compound on its own. So every samasa comes
 # back by construction, whatever the program. v11's join and its visarga sandhi are unchanged.

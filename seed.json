@@ -5,5 +5,5 @@
  "metadata": "misty.json",
  "gate": "ops/verify.sh",
  "pypi": "chandah-ilm",
- "description": "chandah: Sanskrit C, as Hindawi writes it, through the sutram layers to chandas and back, built and run by Hindawi"
+ "description": "chandah: C and C++ in any language Hindawi supports, raised to chandah and lowered back, built and run by Hindawi"
 }

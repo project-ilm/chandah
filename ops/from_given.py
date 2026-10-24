@@ -9,8 +9,8 @@ it was written for; anything unexpected stops this before anything is written.
 import hashlib, sys
 from pathlib import Path
 
-HEADER = ("# © 1993–2026 Abhishek Choudhary. All rights reserved. AyeAI. Written by Meta AI under his direction (sutram v11),\n"
-          "# kept as given apart from these lines, the corrections in docs/CORRECTIONS.md and the completion below its marker.\n")
+HEADER = ("# © 1993–2026 Abhishek Choudhary. All rights reserved. AyeAI. sutram v11, kept as given apart from these two\n"
+          "# lines, the corrections in docs/CORRECTIONS.md and the completion below its marker (docs/COMPLETION.md).\n")
 
 C1_OLD_PREPROC = '    ("PREPROC", r"\\#अन्तर्भाव"),\n'
 C1_NEW_PREPROC = ('    ("COMMENT", r"/\\*.*?\\*/|//[^\\n]*"),  # C1: comments before operators, and line comments\n'

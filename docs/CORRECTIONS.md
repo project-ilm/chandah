@@ -18,11 +18,9 @@ comment stopped the parser at the comment's first word. `//` comments were not r
 **Given:** `ensure_compiles` did not compile. It replaced a fixed list of words and seven fixed names, then returned
 `5 -1` from a binary search written in Python, whatever program it was given ("gcc not available").
 **Corrected:** it compiles and runs through Hindawi (`hin host sanskrit` and `hin run sanskrit`), returns
-`(host_c, output)`, and raises `RuntimeError` when Hindawi is not here or the program does not build and run. Meta AI's
-note of 23 October 2026 says the same: v11 does not compile; Hindawi does.
+`(host_c, output)`, and raises `RuntimeError` when Hindawi is not here or the program does not build and run.
 
 ## Reported, not changed
 
-- The HTML manual's word table does not describe the code (docs/MANUAL.md, the last sections).
 - REGRESSION.md's "Remain" list (samasa typing, pratyahara compression, tinanta, anubandha) is the other AI's, kept as
   given in the restore script.

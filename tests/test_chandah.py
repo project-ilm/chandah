@@ -1,13 +1,15 @@
-"""chandah end to end: the notices; Meta's acceptance test and minimal example; every sample through every path and back;
-the command line; the two corrections; Hindawi's keywords; the manual's tables read from the code; and, where Hindawi is
-here, every sample built and run by Hindawi, original and lowered, with the same output.
+"""chandah end to end: the notices; the acceptance test and the minimal example; every sample of every language through
+every path and back; the command line, tree conversion and build options; the two corrections; Hindawi's keywords; the
+manual's tables read from the code; and, where Hindawi is here, samples built and run by Hindawi, original and lowered,
+with the same output.
 Plain Python, so the gate needs nothing installed: `python3 tests/test_chandah.py` (pytest also collects it).
 © 1993–2026 Abhishek Choudhary. All rights reserved. AyeAI."""
 import concurrent.futures as cf, os, shutil, subprocess, sys, tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-SAMPLES = sorted(ROOT.glob("samples/**/*.c")) + sorted(ROOT.glob("samples/**/*.cpp"))
+SAMPLES = [p for p in sorted(ROOT.glob("samples/**/*.c")) + sorted(ROOT.glob("samples/**/*.cpp"))
+           if "BLASchandah" not in p.parts]            # BLASchandah is a whole project, checked by its own manifest
 ENV = dict(os.environ, PYTHONPATH=str(ROOT), PYTHONDONTWRITEBYTECODE="1")
 NOTICE = "© 1993–2026 Abhishek Choudhary. All rights reserved."
 sys.path.insert(0, str(ROOT))
@@ -28,7 +30,7 @@ def test_version_and_help_carry_the_notices():
         assert NOTICE in out and "MIT" in out and "trademark" in out, out
 
 
-def test_metas_acceptance_test():
+def test_the_acceptance_test():
     code = ("from sutram_tool import codec\n"
             "src=open('example_src.txt',encoding='utf-8').read()\n"
             "enc,meta=codec.encode(src,numeral_mode='katapayadi',structure=None,apply_sandhi=False)\n"
@@ -40,21 +42,46 @@ def test_metas_acceptance_test():
     assert r.stdout.strip() == "PASS", r.stdout + r.stderr
 
 
-def test_metas_minimal_example():
+def test_the_minimal_example():
     from sutram_tool import codec
     enc, meta = codec.encode("पूर्णाङ्क मुख्य() { पूर्णाङ्क अ = 1; }", numeral_mode="katapayadi", structure=None, apply_sandhi=False)
     dec_c, dec_s = codec.decode(enc, meta)
     assert dec_s == meta["base_sutram"] and not any(c in enc for c in "{}();"), enc
 
 
-def test_every_sample_through_every_path_and_back():
+def _lang(f):
+    parts = f.relative_to(ROOT / "samples").parts
+    return parts[1] if parts[0] == "gallery" else "sanskrit"
+
+
+def test_every_sample_of_every_language_through_every_path_and_back():
     from chandah import core
-    assert len(SAMPLES) == 116, len(SAMPLES)
+    assert len(SAMPLES) >= 1203, len(SAMPLES)
     failures = []
     for f in SAMPLES:
-        _, report = core.check_paths(f.read_text(encoding="utf-8"))
-        failures += [(f.name, core.path_name(*p), pr) for p, pr in report if pr]
+        _, report = core.check_paths(f.read_text(encoding="utf-8"), _lang(f))
+        failures += [(str(f.relative_to(ROOT)), core.path_name(*p), pr) for p, pr in report if pr]
     assert not failures, failures[:5]
+
+
+def test_a_tree_raised_and_lowered_comes_back():
+    from chandah import core
+    with tempfile.TemporaryDirectory() as d:
+        src = Path(d) / "project"; src.mkdir()
+        shutil.copy(ROOT / "samples/practice/binary_search.c", src / "main.c")
+        (src / "Makefile").write_text("main: main.c\n\tcc -o main main.c\n", encoding="utf-8")
+        done, kept = core.raise_tree(src, Path(d) / "chandah")
+        assert done == ["main.c"] and not kept and (Path(d) / "chandah/main.c.chandah").exists()
+        assert core.lower_tree(Path(d) / "chandah", Path(d) / "back") == 1
+        assert core.tokens((Path(d) / "back/main.c").read_text(encoding="utf-8")) == core.tokens((src / "main.c").read_text(encoding="utf-8"))
+        assert (Path(d) / "back/Makefile").read_text(encoding="utf-8") == (src / "Makefile").read_text(encoding="utf-8")
+
+
+def test_build_options_need_hindawi_and_say_so():
+    env = {k: v for k, v in ENV.items() if k != "HINDAWI_HOME"}
+    env["PATH"] = "/usr/bin:/bin"
+    r = ch("cc", "--lang", "sanskrit", "-o", "x", "x.c.chandah", env=env)
+    assert r.returncode == 3 and "Hindawi is not here" in r.stderr, r.stdout + r.stderr
 
 
 def test_the_command_line_raises_and_lowers():
@@ -68,7 +95,7 @@ def test_the_command_line_raises_and_lowers():
             r = ch("lower", name + ".chandah", cwd=d)
             lowered = Path(d) / (Path(name).stem + ".lowered" + Path(name).suffix)
             assert r.returncode == 0 and lowered.exists(), r.stdout + r.stderr
-            assert core._tokens(lowered.read_text(encoding="utf-8")) == core._tokens(src.read_text(encoding="utf-8"))
+            assert core.tokens(lowered.read_text(encoding="utf-8")) == core.tokens(src.read_text(encoding="utf-8"))
 
 
 def test_an_unreadable_character_is_refused_by_line():
@@ -107,18 +134,22 @@ def test_the_manual_tables_are_read_from_the_code():
     assert not missing, missing
 
 
-def test_every_sample_built_and_run_by_hindawi_the_same():
+def test_samples_built_and_run_by_hindawi_the_same():
     from chandah import core
     if core.hindawi_command() is None:
         raise Skip("Hindawi is not here")
+    chosen = {}
+    for f in SAMPLES:
+        chosen.setdefault(_lang(f), []).append(f)
+    picks = [f for fs in chosen.values() for f in fs[:3]]       # three of every language here; chandah check runs them all
 
     def one(f):
         src = f.read_text(encoding="utf-8")
-        lowered, _ = core.check_paths(src)
-        same, ra, rb = core.compile_compare(src, lowered, f.suffix)
-        return f.name, same
-    with cf.ThreadPoolExecutor(6) as ex:
-        results = list(ex.map(one, SAMPLES))
+        lowered, _ = core.check_paths(src, _lang(f))
+        same, ra, rb = core.compile_compare(src, lowered, f.suffix, lang=_lang(f))
+        return str(f.relative_to(ROOT)), same
+    with cf.ThreadPoolExecutor(4) as ex:
+        results = list(ex.map(one, picks))
     different = [n for n, same in results if not same]
     assert not different, different
 
@@ -131,7 +162,7 @@ if __name__ == "__main__":
             f(); print(f"   ok   {f.__name__}")
         except Skip as s:
             skipped += 1; print(f"   skip {f.__name__}: {s}")
-        except AssertionError as e:
-            failed += 1; print(f"   FAIL {f.__name__}: {str(e)[:400]}")
+        except Exception as e:
+            failed += 1; print(f"   FAIL {f.__name__}: {type(e).__name__}: {str(e)[:400]}")
     print(f"{len(tests) - failed - skipped} of {len(tests)} tests passed" + (f", {skipped} skipped" if skipped else ""))
     sys.exit(1 if failed else 0)

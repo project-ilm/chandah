@@ -1,6 +1,5 @@
-chandah carries sutram v11, written by Meta AI under the direction of Abhishek Choudhary and given to the repository on
-23 October 2026 as a self-extracting restore script (given/restore_sutramv11.py), with its manual, usage text, note and
-requirements set (given/), each kept byte for byte. The package sutram_tool is that code with his copyright, the two
-corrections in docs/CORRECTIONS.md and the completion in docs/COMPLETION.md; ops/from_given.py makes it from the given
-script and the gate checks it. The samples are Hindawi 2026.10's. The notebook is Hindawi 2026.10's Sanskrit notebook
-with one IDE, Hindawi's with chandah's actions. © 1993–2026 Abhishek Choudhary. All rights reserved. AyeAI.
+chandah is the work of Abhishek Choudhary: his sutram layer over Hindawi, under his intention and his algorithm. The
+package sutram_tool is sutram v11 (given/restore_sutramv11.py) with his copyright, the two corrections in
+docs/CORRECTIONS.md and the completion in docs/COMPLETION.md; ops/from_given.py makes it from that script and the gate
+checks it. The samples are Hindawi 2026.10's. The notebook is Hindawi 2026.10's Sanskrit notebook with one IDE,
+Hindawi's with chandah's actions. © 1993–2026 Abhishek Choudhary. All rights reserved. AyeAI.

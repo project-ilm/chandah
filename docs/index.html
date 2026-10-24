@@ -1,13 +1,14 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>chandah · Sanskrit C to chandah and back</title>
+<title>chandah · C to chandah and back, in every language</title>
 <style>body{font:17px/1.6 system-ui,sans-serif;max-width:780px;margin:40px auto;padding:0 16px;color:#1d1b17;background:#fbf7ef}
 pre{background:#f3ede1;padding:12px;border-radius:8px;overflow-x:auto}h1{font-family:Georgia,serif;font-size:40px;margin-bottom:0}footer{color:#6b6457;font-size:14px;margin-top:40px}</style></head>
-<body><h1>chandah</h1><p><b>Sanskrit C, as Hindawi writes it, raised to chandah through the sutram layers, lowered back to compilable Sanskrit C, and built and run by Hindawi.</b></p>
-<p>A word for every symbol, katapayadi numerals, samasa, sandhi and chhandas; every Sanskrit C and C++ sample of Hindawi 2026.10 goes through all 26 paths and back, and builds the same. The layers are sutram v11, written by Meta AI under the direction of Abhishek Choudhary, corrected and completed.</p>
+<body><h1>chandah</h1><p><b>C and C++, in any language Hindawi supports, raised to chandah through the sutram layers, lowered back to compilable form, and built and run by Hindawi.</b></p>
+<p>One short word for every symbol, katapayadi numerals, samasa, sandhi and chhandas; every C and C++ sample of Hindawi 2026.10's galleries, in all eleven languages, goes through all 26 paths and back.</p>
 <pre>pip install chandah-ilm
-chandah raise prog.c --structure chhandas_anushtubh --sandhi
+chandah raise prog.c --lang sanskrit --structure chhandas_anushtubh --sandhi
 chandah lower prog.c.chandah
-chandah run prog.lowered.c
-chandah check prog.c</pre>
+chandah run prog.c.chandah
+chandah cc --lang sanskrit -o prog prog.c.chandah
+chandah build project.chandah --lang sanskrit</pre>
 <p><a href="https://colab.research.google.com/github/project-ilm/chandah/blob/main/notebooks/chandah_sanskrit.ipynb">The notebook</a> · <a href="https://github.com/project-ilm/chandah/blob/main/docs/MANUAL.md">The manual</a> · <a href="https://github.com/project-ilm/chandah">The repository</a></p>
 <footer>© 1993–2026 Abhishek Choudhary. All rights reserved. AyeAI. MIT licence. Hindawi™ is his trademark.</footer></body></html>

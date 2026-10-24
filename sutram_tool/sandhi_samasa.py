@@ -1,5 +1,5 @@
-# © 1993–2026 Abhishek Choudhary. All rights reserved. AyeAI. Written by Meta AI under his direction (sutram v11),
-# kept as given apart from these lines, the corrections in docs/CORRECTIONS.md and the completion below its marker.
+# © 1993–2026 Abhishek Choudhary. All rights reserved. AyeAI. sutram v11, kept as given apart from these two
+# lines, the corrections in docs/CORRECTIONS.md and the completion below its marker (docs/COMPLETION.md).
 # Sandhi and Samasa layer — v4 bijective
 # v1/v2 intact. Samasa + bijective sandhi.
 LINE_MARKER = "पङ्क्त्यन्त"
@@ -100,7 +100,7 @@ def samasta_to_sutram(samasta_text: str, mode='line', known_identifiers=None) ->
         return "\n".join(lines)
 
 
-# ===== chandah completion of sutram v11 (23 October 2026): compounds that always come back =====
+# ===== chandah completion of sutram v11 : compounds that always come back =====
 # A compound is formed only if the splitter brings back exactly the words it was made of; otherwise the run of words is
 # closed and a new compound begins. The decoder splits each space-separated compound on its own. So every samasa comes
 # back by construction, whatever the program. v11's join and its visarga sandhi are unchanged.

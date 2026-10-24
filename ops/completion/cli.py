@@ -1,6 +1,6 @@
 
 
-# ===== chandah completion of sutram v11 (23 October 2026): the convenience wrappers carry the whole program =====
+# ===== chandah completion of sutram v11 : the convenience wrappers carry the whole program =====
 def c_to_sutram(src, numeral_mode='katapayadi', samasa_mode=None, apply_sandhi=True):
     from .forward import source_to_sutram
     from .sandhi_samasa import sutram_to_samasta

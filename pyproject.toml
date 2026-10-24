@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "chandah-ilm"
-version = "2026.10.0"
-description = "chandah: Sanskrit C, as Hindawi writes it, through the sutram layers to chandas and back, built and run by Hindawi"
+version = "2026.10.1"
+description = "chandah: C and C++ in any language Hindawi supports, raised to chandah and lowered back, built and run by Hindawi"
 readme = "README.md"
 license = "MIT"
 license-files = ["LICENSE", "NOTICE"]
@@ -25,3 +25,6 @@ chandah = "chandah.cli:main"
 
 [tool.setuptools.packages.find]
 include = ["chandah*", "sutram_tool*"]
+
+[tool.setuptools.package-data]
+chandah = ["languages.json"]

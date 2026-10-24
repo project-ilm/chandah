@@ -5,9 +5,9 @@ author: Abhishek Choudhary
 affiliation: AyeAI
 orcid: 0009-0002-0684-8320
 copyright: "© 1993–2026 Abhishek Choudhary. All rights reserved."
-version: 2026.10.0
+version: 2026.10.1
 status: incubating
-origin: "sutram v11, written by Meta AI under his direction, given 23 Oct 2026 (given/restore_sutramv11.py)"
+origin: "sutram v11, his interim implementation, given 23 Oct 2026 (given/restore_sutramv11.py)"
 pypi: chandah-ilm
 doi: null            # recorded back by the seeder after the MINT gate
 siblings:

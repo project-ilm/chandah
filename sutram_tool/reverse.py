@@ -1,5 +1,5 @@
-# © 1993–2026 Abhishek Choudhary. All rights reserved. AyeAI. Written by Meta AI under his direction (sutram v11),
-# kept as given apart from these lines, the corrections in docs/CORRECTIONS.md and the completion below its marker.
+# © 1993–2026 Abhishek Choudhary. All rights reserved. AyeAI. sutram v11, kept as given apart from these two
+# lines, the corrections in docs/CORRECTIONS.md and the completion below its marker (docs/COMPLETION.md).
 from .mappings import SUTRAM_TO_OP, WORD_PARIBHASHIT, WORD_ANU, WORD_PURNA, WORD_SUCHAK, WORD_NIRDESHAK, WORD_AKAR, WORD_AKARHEEN, WORD_UDDHARAN_ARAMBHA, WORD_UDDHARAN_ANTA, WORD_PURVANIRDESH, WORD_AAVESHA, WORD_SAMUHARAMBHA, WORD_SAMUHANTA, HEADER_REVERSE, FORMAT_REVERSE, sutram_to_ident
 from .numerals import to_latin_digits
 from .katapayadi import decode_katapayadi
@@ -258,14 +258,14 @@ def parse_sutram(sutram_text: str) -> str:
     return "\n".join(out_lines)
 
 
-# ===== chandah completion of sutram v11 (23 October 2026): from the complete base layer back to Sanskrit C =====
-# sutram_to_source(sutram) returns compilable Sanskrit C: every token back, one source line per sutram line, indented by
-# its blocks. parse_sutram above is unchanged and still serves the parse-tree path.
+# ===== chandah completion of sutram v11: from the complete base layer back to compilable source =====
+# sutram_to_source(sutram) returns compilable C or C++ in the program's own language: every token back, one source
+# line per sutram line, indented by its blocks. It needs nothing but the text. parse_sutram above is unchanged.
 from .mappings import (WORD_TO_TOKEN, WORD_TO_LITERAL, NUMBER_CHAR_WORDS, HEADER_WORD_TO_NAME, WORD_EMPTY_LINE,
-                       WORD_NUMBER, WORD_NUMBER_FORM, WORD_NUMBER_FORM_END, WORD_DEVA_DIGITS, WORD_CHAR_BEGIN,
-                       WORD_CHAR_END, WORD_LITERAL_PREFIX, WORD_HEADER_BEGIN, WORD_HEADER_END, WORD_MACRO_PAREN,
-                       WORD_SPLICE, WORD_NAME, WORD_LITERALLY, WORD_CODEPOINT, WORD_PARIBHASHIT, WORD_AAVESHA,
-                       WORD_UDDHARAN_ARAMBHA, WORD_UDDHARAN_ANTA, INCLUDE_DIRECTIVE, word_to_name)
+                       WORD_NUMBER, WORD_NUMBER_FORM, WORD_NUMBER_FORM_END, WORD_NATIVE_DIGITS, WORD_STRING_BEGIN,
+                       WORD_STRING_END, WORD_CHAR_BEGIN, WORD_CHAR_END, WORD_LITERAL_PREFIX, WORD_HEADER_BEGIN,
+                       WORD_HEADER_END, WORD_MACRO_PAREN, WORD_SPLICE, WORD_NAME, WORD_LITERALLY, WORD_CODEPOINT,
+                       WORD_PARIBHASHIT, WORD_AAVESHA, INCLUDE_DIRECTIVE, word_to_name)
 
 _NUMBER_WORD_TO_CHAR = {w: c for c, w in NUMBER_CHAR_WORDS.items()}
 
@@ -299,11 +299,11 @@ def _number_back(ws, i):
     out = []
     while ws[i] != WORD_NUMBER_FORM_END:
         w = ws[i]
-        if w == WORD_DEVA_DIGITS:
+        if w == WORD_NATIVE_DIGITS:
             out.append(ws[i + 1]); i += 2; continue
         if w in _NUMBER_WORD_TO_CHAR:
             out.append(_NUMBER_WORD_TO_CHAR[w])
-        elif w.isascii():
+        elif w.isascii() or (w.isalpha() and not _is_deva_digits(w) and not all("\u0915" <= c <= "\u0939" for c in w)):
             out.append(w)
         else:
             out.append(_digits_back(w))
@@ -332,8 +332,8 @@ def sutram_to_tokens(sutram: str):
                 text, i = _number_back(ws, i + 1); toks.append(("NUM", text))
             elif w == WORD_LITERAL_PREFIX:
                 prefix = ws[i + 1]; i += 2
-            elif w == WORD_UDDHARAN_ARAMBHA:
-                text, i = _content_back(ws, i + 1, WORD_UDDHARAN_ANTA); toks.append(("STR", prefix + '"' + text + '"')); prefix = ""
+            elif w == WORD_STRING_BEGIN:
+                text, i = _content_back(ws, i + 1, WORD_STRING_END); toks.append(("STR", prefix + '"' + text + '"')); prefix = ""
             elif w == WORD_CHAR_BEGIN:
                 text, i = _content_back(ws, i + 1, WORD_CHAR_END); toks.append(("CHR", prefix + "'" + text + "'")); prefix = ""
             elif w == WORD_HEADER_BEGIN:

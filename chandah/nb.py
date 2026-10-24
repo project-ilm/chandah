@@ -1,6 +1,7 @@
 """The one IDE of the chandah notebook. It is Hindawi's notebook IDE (nb_ide.ide in Hindawi 2026.10), with every one of
-its actions kept and its own helpers used (languages, programs, hin, from_english), and chandah's added: raise the program
-to chandah, lower chandah back to compilable Sanskrit C, and check every path there and back, built and run by Hindawi.
+its actions kept and its own helpers used (languages, programs, hin, from_english), and chandah's added, for every
+language: raise the program to chandah, lower chandah back to compilable form, and check every path there and back,
+built and run by Hindawi. A language's tools are fetched from Hindawi's release the first time it is chosen.
 © 1993–2026 Abhishek Choudhary. All rights reserved. AyeAI."""
 import sys, tempfile
 from pathlib import Path
@@ -35,7 +36,16 @@ def ide(lang="sanskrit"):
             f = Path(tempfile.gettempdir()) / Path(str(prog.value)).name
         f.write_text(ed.value, encoding="utf-8"); return f
 
+    def tools(lang):
+        """A language's prebuilt tools, fetched from Hindawi's release the first time the language is chosen in Colab."""
+        if "google.colab" not in sys.modules or (nb_ide.H / "lang/hindawi/languages" / lang / "h2c").exists():
+            return
+        import subprocess
+        url = f"https://github.com/hindawiai/hindawi2026.10/releases/download/tools/hindawi-tools-{lang}-linux-x86_64.tar.gz"
+        subprocess.run(f"curl -fsSL {url} | tar -xz -C {nb_ide.H}", shell=True)
+
     def fill(*_):
+        tools(L.value)
         cur.clear(); cur.update(nb_ide.programs(L.value, S.value)); sec.options = list(cur) or ["(none yet)"]; pick()
 
     def pick(*_):
@@ -91,14 +101,14 @@ def ide(lang="sanskrit"):
             ed.value = bytes(item["content"]).decode("utf-8", "replace")
 
     def _chandah_ready():
-        if L.value != "sanskrit" or S.value not in (".c", ".cpp"):
-            shown.value = "chandah carries Sanskrit C and C++: choose sanskrit, and C or C++"
+        if S.value not in (".c", ".cpp"):
+            shown.value = "chandah carries C and C++: choose C or C++"
             return False
         return True
 
     def raise_():
         if _chandah_ready():
-            text, meta = core.raise_(ed.value, numerals.value, structure.value, sandhi.value)
+            text, meta = core.raise_(ed.value, numerals.value, structure.value, sandhi.value, L.value)
             ch.value, state["meta"] = text, meta
             shown.value = f"raised to chandah ({core.path_name(numerals.value, structure.value, sandhi.value)})"
 
@@ -106,14 +116,14 @@ def ide(lang="sanskrit"):
         if "meta" not in state:
             shown.value = "raise a program first: lowering uses what raising recorded"; return
         ed.value = core.lower(ch.value.rstrip("\n"), state["meta"])
-        shown.value = "lowered into the editor as compilable Sanskrit C; ▶ Build and run builds it"
+        shown.value = "lowered into the editor as a compilable program; ▶ Build and run builds it"
 
     def check_():
         if not _chandah_ready():
             return
-        lowered, report = core.check_paths(ed.value)
+        lowered, report = core.check_paths(ed.value, L.value)
         bad = [(p, pr) for p, pr in report if pr]
-        res = core.compile_compare(ed.value, lowered or "", S.value, given.value)
+        res = core.compile_compare(ed.value, lowered or "", S.value, given.value, L.value)
         view.clear_output()
         with view:
             print(f"{len(report) - len(bad)} of {len(report)} paths there and back exactly")
@@ -133,7 +143,7 @@ def ide(lang="sanskrit"):
     bar = w.HBox([w.Button(description=n, layout=w.Layout(width="auto"), button_style="success" if i == 0 else "") for i, (n, _) in enumerate(acts)] + [up])
     for b, (_, f) in zip(bar.children, acts):
         b.on_click(act(f))
-    chandah_acts = [("⇧ Raise to chandah", raise_), ("⇩ Lower to Sanskrit C", lower_), ("✓ Check every path", check_)]
+    chandah_acts = [("⇧ Raise to chandah", raise_), ("⇩ Lower to compilable form", lower_), ("✓ Check every path", check_)]
     chandah_bar = w.HBox([numerals, structure, sandhi] + [w.Button(description=n, layout=w.Layout(width="auto"),
                                                                     button_style="info") for n, _ in chandah_acts])
     for b, (_, f) in zip(chandah_bar.children[3:], chandah_acts):

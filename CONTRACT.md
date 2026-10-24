@@ -13,12 +13,16 @@ completion below its marker differ from the given restore script. Enforced by V0
 `ops/from_given.py` and compares it byte for byte. Earned by C47.
 
 **K3. Every path comes back.** On all 26 paths the sutram comes back exactly, no symbol is left, every token comes back and
-every path lowers to the same program. Enforced by V01 on every sample. Earned by Meta AI's requirements 3 and 11.
+every path lowers to the same program. Enforced by V01 on every sample of every language. Earned by the requirements.
 
 **K4. Every sample builds the same.** Hindawi builds and runs each sample and its lowered program with the same output.
 Enforced by V01 where Hindawi is here, and by `chandah check`. Earned by the author's instruction: ensure it compiles.
 
-**K5. Hindawi's keywords are the canon.** chandah keeps them exactly as written. Enforced by V01. Earned by C47.
+**K5. Hindawi's keywords are the canon.** chandah keeps every language's keywords exactly as written. Enforced by V01.
+Earned by C47.
+
+**K10. Work done under his direction is his.** Nothing published here names anyone but its author. Enforced by V05.
+Earned by his ruling of 24 October 2026.
 
 **K6. One IDE.** The notebook is Hindawi's Sanskrit notebook with one IDE, Hindawi's with chandah's actions; every other
 given cell is unchanged and in order. Enforced by V03. Earned by the author's instruction of 23 October 2026.
