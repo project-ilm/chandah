@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """from_given.py: make chandah's sutram_tool from the restore script exactly as given, changing only what is recorded:
-the author's copyright lines at the head of every module, and the corrections in docs/CORRECTIONS.md (C1 and C2).
+the author's copyright lines at the head of every module, and the corrections in docs/CORRECTIONS.md (C1 and C2), and the completion
+in ops/completion/ appended below each module it completes (docs/COMPLETION.md).
   from_given.py <restored tree> <chandah repository>
 The restored tree is what `python3 given/restore_sutramv11.py <dir>` writes. A correction applies only to the exact text
 it was written for; anything unexpected stops this before anything is written.
@@ -9,7 +10,7 @@ import hashlib, sys
 from pathlib import Path
 
 HEADER = ("# © 1993–2026 Abhishek Choudhary. All rights reserved. AyeAI. Written by Meta AI under his direction (sutram v11),\n"
-          "# kept as given apart from these two lines and the corrections recorded in docs/CORRECTIONS.md.\n")
+          "# kept as given apart from these lines, the corrections in docs/CORRECTIONS.md and the completion below its marker.\n")
 
 C1_OLD_PREPROC = '    ("PREPROC", r"\\#अन्तर्भाव"),\n'
 C1_NEW_PREPROC = ('    ("COMMENT", r"/\\*.*?\\*/|//[^\\n]*"),  # C1: comments before operators, and line comments\n'
@@ -66,11 +67,16 @@ def main(src, dst):
     if i < 0 or hashlib.sha256(cd[i:].encode()).hexdigest() != C2_GIVEN_SHA256:
         fail("codec.py's ensure_compiles is not the given text C2 was written for")
     out["codec.py"] = cd[:i] + C2_NEW
+    completion = Path(__file__).resolve().parent / "completion"
+    for name in sorted(p.name for p in completion.glob("*.py")):
+        if name not in out:
+            fail(f"completion/{name} names no given module")
+        out[name] = out[name].rstrip("\n") + "\n" + (completion / name).read_text(encoding="utf-8")
     target = dst / "sutram_tool"
     target.mkdir(parents=True, exist_ok=True)
     for name, text in out.items():
         (target / name).write_text(HEADER + text, encoding="utf-8")
-    print(f"from_given: 16 modules, copyright applied, corrections C1 and C2 applied, into {target}")
+    print(f"from_given: 16 modules, copyright applied, corrections C1 and C2 applied, completion appended, into {target}")
 
 
 if __name__ == "__main__":

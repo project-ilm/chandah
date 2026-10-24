@@ -1,172 +1,232 @@
-# chandah manual: sutram v11, corrected
+# chandah manual: sutram v11, corrected and completed
 
 © 1993–2026 Abhishek Choudhary. All rights reserved. AyeAI. Hindawi™ is his trademark.
 
-sutram v11 was written by Meta AI under the direction of Abhishek Choudhary. This manual is the usage text Meta AI gave
-(kept as given in `given/usage-v11.md`) with basic corrections, each marked **Correction** and each checked by running the
-code. The HTML manual it also gave is kept as given in `given/sutram-manual-v11.html`; where it does not describe the code,
-the code is described here and the differences are listed at the end. The two corrections made to the code itself are in
-`docs/CORRECTIONS.md`.
+sutram v11 was written by Meta AI under the direction of Abhishek Choudhary. What Meta AI gave is kept as given in
+`given/`: the restore script, its HTML manual, its usage text, its note of 23 October 2026 and its requirements set. This
+manual describes chandah as built: v11 with two corrections (`docs/CORRECTIONS.md`) and a completion that carries every
+token of Sanskrit C and C++ (`docs/COMPLETION.md`).
 
 ## How it sits on Hindawi
 
-- **The input is Sanskrit C as Hindawi writes it**, not a C-like language of its own: Hindawi's keywords (यदि, यावत्,
-  अन्यथा, प्रत्यागम, पूर्णाङ्क, शून्य, `#अन्तर्भाव`), Devanagari names, and the rest of C. Those keywords are Hindawi's
-  canonical Sanskrit bindings (`lang/hindawi/languages/sanskrit/c2h.uhin` in hindawiai/hindawi2026.10), and v11 keeps them
-  exactly as written.
-- **Hindawi builds and runs the program.** It lowers Sanskrit C through its script filter and Romenagri to the host
-  compiler (`hin run sanskrit FILE`); nothing in chandah replaces or imitates that.
-- **chandah works on the text**: the sutram layers turn the program into words, numerals, compounds, sandhi and metre,
-  and back. A program that comes back is built and run again by Hindawi, so the two outputs can be compared.
+- The input is Sanskrit C or C++ as Hindawi writes it: Hindawi's keywords (यदि, यावत्, प्रति, प्रत्यागम, पूर्णाङ्क ...),
+  Devanagari names, and the rest of C. Hindawi's keywords are its canonical Sanskrit bindings
+  (`lang/hindawi/languages/sanskrit/c2h.uhin`) and chandah keeps them exactly as written.
+- chandah **raises** the program to chandah, words only, and **lowers** chandah back to compilable Sanskrit C.
+- Hindawi **builds and runs** it, lowering through its script filter and Romenagri to the host compiler
+  (`hin run sanskrit FILE`). Nothing in chandah imitates a build.
+
+## Meta AI's requirements, and how each is met
+
+1. **Purpose.** A front end, Sanskrit C to sutram and back. It does not compile; `ensure_compiles` hands the program to
+   Hindawi (correction C2).
+2. **Input.** Sanskrit C, and Sanskrit C++, as Hindawi writes it.
+3. **Output.** Only words, spaces and newlines: every symbol is one word (the tables below), every declaration is marked
+   परिभाषित, and the sutram comes back exactly (`dec_s == meta['base_sutram']`) on every path. v11's code opens a block
+   with अणु and closes it with पूर्ण, though the requirement says the block ends with अणु; chandah keeps the code's words.
+4. **Numerals.** Devanagari digits, or katapayadi syllables (`0` न, `1` क ... `9` झ, written in reverse, as tradition
+   has it); both come back.
+5. **Structure.** None, samasa (each line, or the whole program) and chhandas (anushtubh, gayatri, trishtubh, jagati,
+   syllables counted approximately), each with पङ्क्त्यन्त closing a line. A compound is formed only where it splits back
+   exactly, so samasa comes back whatever the program.
+6. **Sandhi.** Optional, after the structure, never before: visarga before s, ś and ṣ, which comes back. `sandhi_panini.py`
+   is kept as given beside it.
+7. **Rule-based.** Every transformation is a table or a rule in the 16 files; array brackets, function parameters
+   included, are words of their own (`[` सूचक, `]` सूचकान्त).
+8. **Pandit-readable.** The words are Sanskrit: v11's, Hindawi's keywords, and traditional names for punctuation
+   (अल्पविराम, उपविराम, विराम, प्रश्नचिह्न).
+9. **Modules.** The same 16 files; the completion is written below a marker at the end of the modules it completes.
+10. **Acceptance test.** Passes, with `example_src.txt` (the notebook's binary search).
+11. **Compilation on every path.** Measured below.
 
 ## Install and use
 
 ```
-pip install chandah-ilm            # in the notebook, its chandah cell does this
-chandah stages program.c           # every layer, each checked on the way back
-chandah revert program.c           # to chandah and back; Hindawi builds and runs both, and the outputs are compared
-chandah encode program.c -o program.chandah   # with --numerals, --structure, --no-sandhi
-chandah decode program.chandah --meta program.chandah.meta.json -o back.c
-chandah words                      # the words v11 uses, read from its own tables
+pip install chandah-ilm
+chandah raise prog.c                       # prog.c.chandah, and its metadata prog.c.chandah.json
+chandah raise prog.c --structure chhandas_anushtubh --sandhi --numerals katapayadi
+chandah lower prog.c.chandah               # prog.lowered.c: compilable Sanskrit C
+chandah run prog.c.chandah                 # lowered, then built and run by Hindawi; --input FILE gives it input
+chandah check prog.c more.cpp ...          # all 26 paths there and back; Hindawi builds both, where it is here
+chandah stages prog.c                      # every layer of one program
+chandah words                              # the words, read from the tables
 ```
 
-In Python, `from sutram_tool import codec` works once the package is installed. **Correction:** the given setup line
-`sys.path.insert(0, '/path/to/restored')` is not needed.
-
-## The 16 files
-
-1. **lexer.py.** `toks = lex(src)` returns a list of `(kind, text)` pairs. **Correction:** it tokenises Sanskrit C as
-   Hindawi writes it (Devanagari and Latin names, ASCII and Devanagari digits, strings, operators, `#अन्तर्भाव`), not
-   "C-like source". **Correction C1:** the given lexer matched `/*` as two operators, so any program with a comment
-   failed; comments are now skipped, `//` comments too.
-2. **parser.py.** `preprocs, funcs = parse_source(src)`. **Correction:** what it covers is listed below under Coverage;
-   anything else stops it, and chandah then refuses the program by name.
-3. **ast_nodes.py.** The dataclasses FuncDef, VarDef, While, If, Return, ExprStmt, BinOp, UnaryOp, Call, Index, Var, Num,
-   StrLit and Param, made by `parse_source`. As given.
-4. **mappings.py.** `OP_TO_SUTRAM`, `SUTRAM_TO_OP`, `ident_to_sutram`, `sutram_to_ident`: `ident_to_sutram("my_var")`
-   gives `myयोजकvar`, and `OP_TO_SUTRAM["+"]` gives `योजय`. As given. Its keyword and type words are Hindawi's own.
-5. **forward.py.** `sutram = program_to_sutram(preprocs, funcs, numeral_mode='katapayadi')` (or `'devanagari'`), with
-   `expr_to_words` and `stmt_to_words` below it. As given.
-6. **reverse.py.** **Correction:** `parse_sutram(sutram_text)` returns the Sanskrit C source as text, not
-   `(preprocs, funcs)`.
-7. **numerals.py.** `to_devanagari_digits("123")` gives `१२३`; `to_latin_digits` goes back. As given.
-8. **katapayadi.py.** `encode_katapayadi("5")` gives `ङ`; `decode_katapayadi` goes back. As given.
-9. **codec.py.** `enc, meta = codec.encode(src, numeral_mode='katapayadi', structure=None, apply_sandhi=False)`.
-   **Correction:** `structure` is one of None, `samasa_line`, `samasa_full`, `chhandas_anushtubh`, `chhandas_gayatri`,
-   `chhandas_trishtubh` and `chhandas_jagati`. `dec, base = codec.decode(enc, meta)` returns the Sanskrit C source and the
-   base sutram. **Correction C2:** the given `ensure_compiles` did not compile: it replaced a fixed list of words and
-   returned a binary-search result computed in Python, whatever the program. It now compiles and runs through Hindawi,
-   returning `(host_c, output)`, and raises `RuntimeError` when Hindawi is not here or the program does not build.
-10. **cli.py.** `s = c_to_sutram(src, numeral_mode='katapayadi', samasa_mode=None, apply_sandhi=True)`;
-    **Correction:** `sutram_to_c(s)` returns Sanskrit C, not English C. `chhandas_to_c` and `samasta_to_c` as given. The
-    `chandah` command is separate (above).
-11. **sandhi_samasa.py.** `sutram_to_samasta(sutram_text, mode='line' or 'full', apply_sandhi=True)` and
-    `samasta_to_sutram(comp, mode=..., known_identifiers=...)`. **Correction:** "bijective" holds with katapayadi
-    numerals; with Devanagari numerals the compounds do not come back exactly (Measured, below).
-12. **sandhi_panini.py.** `panini_join_two("नीचः", "स्थापय")` gives `नीचस्स्थापय`; `stage2_join("तत्", "लय")` gives
-    `तलँय`; `panini_unsandhi` and `stage2_unsandhi` undo them. As given.
-13. **chhandas.py.** `ch = format_anushtubh_bijective(sutram_text)`; `parse_chhandas_bijective(ch)` gives the sutram back.
-    As given.
-14. **true_chhandas.py.** `ch = format_true_chhandas(sutram_text, chhandas_type='anushtubh')`. **Correction:**
-    `parse_true_chhandas(ch)` gives the sutram back; `strip_true_fillers(ch)` alone does not.
-15. **library_spine.py.** `lib = LibrarySpine()`; `lib.declare('सङ्कलनम्', c_equivalent='accumulate',
-    derived_from='सम्+कल')` returns `('accumulate', 'सम्+कल', False)`; `lib.resolve('सङ्कलनम्')` gives `accumulate`;
-    an unknown word raises `LibraryError`. **Correction:** `list_core()` holds 30 verbs in the code, not the 32 that
-    REGRESSION.md and the HTML manual state.
-16. **`__init__.py`** (given as "init.py"). Marks the package.
-
-The pipeline, as the given text describes it: `lex`, `parse_source`, `program_to_sutram`, then optionally
-`sutram_to_samasta` or a chhandas layer, then back; or `codec.encode` and `codec.decode`. **Correction:** going back from
-true chhandas is `parse_true_chhandas`, and the program that comes back is Sanskrit C, which Hindawi builds and runs.
-
-## Coverage
-
-v11 covers functions over `पूर्णाङ्क` (int) and `शून्य` (void), `यावत्` (while), `यदि` and `अन्यथा` (if, else),
-`प्रत्यागम` (return), arrays and their initialisers, calls, `&` and `*`, `प्रारूप_लिख` (printf) with `%d`, `%s` and `\n`,
-and `#अन्तर्भाव <stdio.h>`. It does not yet cover `प्रति` (for), `भङ्ग` (break), `अनुवर्त` (continue), `वर्ण` (char) and
-the other types, declarations outside functions, other headers, or C++. In the Sanskrit GATE gallery of Hindawi 2026.10
-(`docs/hindawi/samples/sanskrit`, 114 programs), v11 parses one: the binary search. The C++ program of the notebook stops
-at its first class.
+Exit codes: 0 done, 1 a check failed, 2 the input could not be read or used, 3 Hindawi is needed and is not here. In
+Python: `from sutram_tool import codec`; `enc, meta = codec.encode(src, numeral_mode, structure, apply_sandhi)`;
+`program, base = codec.decode(enc, meta)`.
 
 ## Measured
 
-The notebook's C program (the binary search), through every numeral mode, structure and sandhi choice, checked on the way
-back (the base sutram and the program's parse tree): katapayadi numerals 13 of 13 combinations come back exactly;
-Devanagari numerals 5 of 13. Built and run by Hindawi, the original and the program reverted from chhandas
-(anushtubh, katapayadi, sandhi) both print `5 -1`.
+Every Sanskrit C and C++ sample of Hindawi 2026.10 (`samples/`: the gallery's 114, the same in the live repository, and
+the notebook's two), 116 programs, through all 26 paths (two numeral modes; no structure, samasa by line or whole, four
+chhandas; sandhi off and on): the sutram comes back exactly, no symbol is left in the chandah, every token comes back, and
+every path lowers to the same program. Hindawi builds and runs every original and its lowered program with the same exit
+and the same output. Meta AI's acceptance test prints PASS, and its minimal example comes back.
 
-| numerals | structure | sandhi | comes back |
-|---|---|---|---|
-| devanagari | none | off | yes |
-| devanagari | samasa_line | off | no |
-| devanagari | samasa_line | on | no |
-| devanagari | samasa_full | off | no |
-| devanagari | samasa_full | on | no |
-| devanagari | chhandas_anushtubh | off | yes |
-| devanagari | chhandas_anushtubh | on | no |
-| devanagari | chhandas_gayatri | off | yes |
-| devanagari | chhandas_gayatri | on | no |
-| devanagari | chhandas_trishtubh | off | yes |
-| devanagari | chhandas_trishtubh | on | no |
-| devanagari | chhandas_jagati | off | yes |
-| devanagari | chhandas_jagati | on | no |
-| katapayadi | none | off | yes |
-| katapayadi | samasa_line | off | yes |
-| katapayadi | samasa_line | on | yes |
-| katapayadi | samasa_full | off | yes |
-| katapayadi | samasa_full | on | yes |
-| katapayadi | chhandas_anushtubh | off | yes |
-| katapayadi | chhandas_anushtubh | on | yes |
-| katapayadi | chhandas_gayatri | off | yes |
-| katapayadi | chhandas_gayatri | on | yes |
-| katapayadi | chhandas_trishtubh | off | yes |
-| katapayadi | chhandas_trishtubh | on | yes |
-| katapayadi | chhandas_jagati | off | yes |
-| katapayadi | chhandas_jagati | on | yes |
+## The words, read from the tables
 
-## The words, read from the code
+Tokens (`TOKEN_WORDS`; v11's words where v11 had them, `->` given its own because v11 shared मध्ये with `.`):
 
-Operators (`OP_TO_SUTRAM`):
+| token | word | |
+|---|---|---|
+| `=` | स्थापय | |
+| `+=` | योजयस्थापय | |
+| `-=` | वियोजयस्थापय | |
+| `*=` | गुणयस्थापय | |
+| `/=` | विभजस्थापय | |
+| `%=` | शेषस्थापय | |
+| `==` | समम् | |
+| `!=` | नसमम् | |
+| `<` | अल्पतरम् | |
+| `>` | अधिकतरम् | |
+| `<=` | अल्पतरंवासमम् | |
+| `>=` | अधिकतरंवासमम् | |
+| `+` | योजय | |
+| `-` | वियोजय | |
+| `*` | गुणय | binary |
+| `/` | विभज | |
+| `%` | शेषम् | |
+| `!` | न | |
+| `&&` | च | |
+| `\|\|` | वा | |
+| `++` | वर्धय | |
+| `--` | क्षपय | |
+| `&` | पता | unary |
+| `*` | अन्तर्वस्तु | unary |
+| `->` | निर्देशमध्ये | |
+| `.` | मध्ये | |
+| `::` | क्षेत्र | |
+| `{` | अणु | |
+| `}` | पूर्ण | |
+| `(` | समूहारम्भ | |
+| `)` | समूहान्त | |
+| `[` | सूचक | |
+| `]` | सूचकान्त | |
+| `;` | विराम | |
+| `,` | अल्पविराम | |
+| `:` | उपविराम | |
+| `?` | प्रश्नचिह्न | |
+| `#` | पूर्वनिर्देश | |
+| `...` | इत्यादि | |
+| `~` | पूरक | |
+| `^` | अनन्यवा | |
+| `\|` | अंशवा | |
+| `&` | अंशच | binary |
+| `<<` | वामसर्पय | |
+| `>>` | दक्षिणसर्पय | |
+| `&=` | अंशचस्थापय | |
+| `\|=` | अंशवास्थापय | |
+| `^=` | अनन्यवास्थापय | |
+| `<<=` | वामसर्पयस्थापय | |
+| `>>=` | दक्षिणसर्पयस्थापय | |
+| `.*` | मध्येअन्तर्वस्तु | |
+| `->*` | निर्देशमध्येअन्तर्वस्तु | |
 
-| token | word |
+Inside strings, characters and header names (`LITERAL_WORDS`); Devanagari text and Latin words stay as written, and digits
+follow संख्याङ्क:
+
+| character | word |
 |---|---|
+| `space` | अवकाश |
+| `.` | बिन्दु |
+| `,` | अल्पविराम |
+| `:` | उपविराम |
+| `;` | विराम |
+| `?` | प्रश्नचिह्न |
+| `!` | विस्मयचिह्न |
+| `-` | वियोजय |
+| `+` | योजय |
+| `*` | गुणय |
+| `/` | विभज |
 | `=` | स्थापय |
-| `+=` | योजयस्थापय |
-| `-=` | वियोजयस्थापय |
-| `*=` | गुणयस्थापय |
-| `/=` | विभजस्थापय |
-| `%=` | शेषस्थापय |
-| `==` | समम् |
-| `!=` | नसमम् |
 | `<` | अल्पतरम् |
 | `>` | अधिकतरम् |
-| `<=` | अल्पतरंवासमम् |
-| `>=` | अधिकतरंवासमम् |
+| `%` | प्रतिशत |
+| `&` | अंशच |
+| `\|` | अंशवा |
+| `^` | अनन्यवा |
+| `~` | पूरक |
+| `(` | समूहारम्भ |
+| `)` | समूहान्त |
+| `[` | सूचक |
+| `]` | सूचकान्त |
+| `{` | अणु |
+| `}` | पूर्ण |
+| `#` | पूर्वनिर्देश |
+| `"` | उद्धरणचिह्न |
+| `'` | एकोद्धरणचिह्न |
+| `\\` | पलायनचिह्न |
+| `_` | योजक |
+| `$` | मुद्राचिह्न |
+| `@` | विशेषचिह्न |
+| ``` | प्रत्युद्धरणचिह्न |
+| `\t` | स्तम्भान्तर |
+| `\n` | नूतनपङ्क्ति |
+| `%d` | प्रारूपपूर्णाङ्क |
+| `%s` | प्रारूपपाठ |
+
+Inside numbers (`NUMBER_CHAR_WORDS`):
+
+| character | word |
+|---|---|
+| `.` | दशमलव |
 | `+` | योजय |
 | `-` | वियोजय |
-| `*_bin` | गुणय |
-| `/` | विभज |
-| `%` | शेषम् |
-| `!` | न |
-| `&&` | च |
-| `\|\|` | वा |
-| `++` | वर्धय |
-| `--` | क्षपय |
-| `&_addr` | पता |
-| `*_deref` | अन्तर्वस्तु |
-| `->` | मध्ये |
-| `.` | मध्ये |
-| `::` | क्षेत्र |
+| `_` | योजक |
+| `'` | एकोद्धरणचिह्न |
 
-Keywords and types are Hindawi's own, kept as written: अन्यथा, पूर्णाङ्क, प्रत्यागम, यदि, यावत्, शून्य. Headers:
-`<stdio.h>` is मानकप्रवाह. Formats: `%d` प्रारूपपूर्णाङ्क, `%s` प्रारूपपाठ, `\n` नूतनपङ्क्ति.
+Markers:
+
+| word | marks |
+|---|---|
+| परिभाषित | a declaration begins (v11's) |
+| संख्याङ्क | a number follows (v11's) |
+| संख्यारूप | a number with a point, a base, an exponent or a suffix begins |
+| संख्यारूपान्त | it ends |
+| देवाङ्क | Devanagari digits written as such in the source follow |
+| उद्धरणारम्भ | a string begins (v11's) |
+| उद्धरणान्त | it ends (v11's) |
+| वर्णारम्भ | a character begins |
+| वर्णान्त | it ends |
+| उद्धरणोपसर्ग | L, u, U or u8 before a string or character |
+| आवेशन | the include directive, अन्तर्भाव (v11's) |
+| मानकप्रवाह | <stdio.h> (v11's) |
+| शीर्षकारम्भ | any other header name begins |
+| शीर्षकान्त | it ends |
+| प्राचलारम्भ | the ( of a function-like macro, written against its name |
+| पङ्क्तिसन्धि | a backslash joining a line to the next |
+| रिक्तपङ्क्ति | a line with no tokens, so line numbers survive |
+| नाम | the next word is a name, though it reads like one of these words |
+| शब्दशः | inside a string: the next word is text, though it reads like one of these words |
+| वर्णसङ्केत | inside a string: a character with no word of its own, by its number |
+| पङ्क्त्यन्त | the end of a line, in samasa and chhandas (v11's) |
+
+## The 16 files
+
+`ast_nodes.py`, `katapayadi.py`, `numerals.py`, `parser.py`, `sandhi_panini.py`, `chhandas.py`, `true_chhandas.py`,
+`library_spine.py` and `__init__.py` are as given. `lexer.py` carries correction C1 and the completion's `lex_program`;
+`codec.py` carries correction C2 and the completion's `encode` and `decode`; `mappings.py`, `forward.py`, `reverse.py`,
+`sandhi_samasa.py` and `cli.py` carry the completion. v11's parse-tree path (`parse_source`, `program_to_sutram`,
+`parse_sutram`) remains as given for the programs it covers.
+
+## Corrections to the given usage text
+
+- **Setup:** `sys.path.insert(0, '/path/to/restored')` is not needed once chandah-ilm is installed.
+- **lexer.py:** it reads Sanskrit C as Hindawi writes it, not "C-like source"; comments no longer stop it (C1).
+- **reverse.py:** `parse_sutram` returns the Sanskrit C text, not `(preprocs, funcs)`.
+- **codec.py:** `structure` is also `chhandas_gayatri`, `chhandas_trishtubh` or `chhandas_jagati`; `decode` returns
+  Sanskrit C and the base sutram; `ensure_compiles` compiles through Hindawi and returns `(host_c, output)` (C2).
+- **cli.py:** `sutram_to_c` returns Sanskrit C.
+- **true_chhandas.py:** `parse_true_chhandas` gives the sutram back; `strip_true_fillers` alone does not.
+- **library_spine.py:** `list_core()` holds 30 verbs, not the 32 REGRESSION.md and the HTML manual state.
+- **`__init__.py`** was given as "init.py".
 
 ## Where the HTML manual differs from the code
 
-The HTML manual's word table, against v11's code (12 of 22 rows differ). Its word for `return`,
-प्रत्यर्पय, is also not Hindawi's: Hindawi and the code both use प्रत्यागम.
+10 of its 22 rows differ from the code. Its word for `return`, प्रत्यर्पय, is not Hindawi's either.
 
-| token | the HTML manual | v11's code | |
+| token | the HTML manual | the code | |
 |---|---|---|---|
 | `=` | स्थापय | स्थापय | agrees |
 | `+` | योजय | योजय | agrees |
@@ -180,13 +240,19 @@ The HTML manual's word table, against v11's code (12 of 22 rows differ). Its wor
 | `>` | अधिकम् | अधिकतरम् | differs |
 | `<=` | अनधिकम् | अल्पतरंवासमम् | differs |
 | `>=` | अन्यूनम् | अधिकतरंवासमम् | differs |
-| `int` | पूर्णाङ्क | पूर्णाङ्क | agrees |
-| `return` | प्रत्यर्पय | प्रत्यागम | differs |
-| `if` | यदि | यदि | agrees |
-| `else` | अन्यथा | अन्यथा | agrees |
-| `while` | यावत् | यावत् | agrees |
-| `break` | विरम | none: v11 has no break | differs |
-| `;` | विराम | none: v11 marks structure with its own words instead | differs |
-| `,` | अल्पविराम | none: v11 marks structure with its own words instead | differs |
-| `{` | प्रारम्भ | none: v11 marks structure with its own words instead | differs |
-| `}` | अवसान | none: v11 marks structure with its own words instead | differs |
+| `int` | पूर्णाङ्क | पूर्णाङ्क (keyword, as written) | agrees |
+| `return` | प्रत्यर्पय | प्रत्यागम (keyword, as written) | differs |
+| `if` | यदि | यदि (keyword, as written) | agrees |
+| `else` | अन्यथा | अन्यथा (keyword, as written) | agrees |
+| `while` | यावत् | यावत् (keyword, as written) | agrees |
+| `break` | विरम | भङ्ग (keyword, as written) | differs |
+| `;` | विराम | विराम | agrees |
+| `,` | अल्पविराम | अल्पविराम | agrees |
+| `{` | प्रारम्भ | अणु | differs |
+| `}` | अवसान | पूर्ण | differs |
+
+## What chandah does not carry
+
+Comments are dropped, with their lines kept so line numbers survive; the lowered program's layout is regenerated (one
+space between tokens, four spaces a block). A character outside C, such as `@` outside a string, is refused with its
+line. A name already containing योजक comes back by an avagraha the completion adds.

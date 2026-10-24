@@ -1,5 +1,5 @@
 # © 1993–2026 Abhishek Choudhary. All rights reserved. AyeAI. Written by Meta AI under his direction (sutram v11),
-# kept as given apart from these two lines and the corrections recorded in docs/CORRECTIONS.md.
+# kept as given apart from these lines, the corrections in docs/CORRECTIONS.md and the completion below its marker.
 from .parser import parse_source
 from .forward import program_to_sutram
 from .reverse import parse_sutram
@@ -34,3 +34,16 @@ def chhandas_to_c(chhandas_text: str, bijective=False):
 def samasta_to_c(samasta_text: str, mode='line', known_identifiers=None):
     sutram = samasta_to_sutram(samasta_text, mode=mode, known_identifiers=known_identifiers)
     return parse_sutram(sutram)
+
+
+# ===== chandah completion of sutram v11 (23 October 2026): the convenience wrappers carry the whole program =====
+def c_to_sutram(src, numeral_mode='katapayadi', samasa_mode=None, apply_sandhi=True):
+    from .forward import source_to_sutram
+    from .sandhi_samasa import sutram_to_samasta
+    base = source_to_sutram(src, numeral_mode=numeral_mode)
+    return sutram_to_samasta(base, mode=samasa_mode, apply_sandhi=apply_sandhi) if samasa_mode else base
+
+
+def sutram_to_c(sutram_text):
+    from .reverse import sutram_to_source
+    return sutram_to_source(sutram_text)

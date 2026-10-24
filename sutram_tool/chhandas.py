@@ -1,5 +1,5 @@
 # © 1993–2026 Abhishek Choudhary. All rights reserved. AyeAI. Written by Meta AI under his direction (sutram v11),
-# kept as given apart from these two lines and the corrections recorded in docs/CORRECTIONS.md.
+# kept as given apart from these lines, the corrections in docs/CORRECTIONS.md and the completion below its marker.
 import re
 _vowel_pat = re.compile(r'[\u0904-\u0914\u093E-\u094C]')
 CHHANDAS_LB = "पङ्क्त्यन्त"

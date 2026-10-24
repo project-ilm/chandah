@@ -1,29 +1,28 @@
-# chandah: Sanskrit C through the sutram layers to chandas, and back
+# chandah: Sanskrit C to chandah and back
 
-DOI: [10.5281/zenodo.23589959](https://doi.org/10.5281/zenodo.23589959)
-
-**chandah** takes a Sanskrit C program, as Hindawi writes it, through the sutram layers (words for every operator,
-katapayadi numerals, samasa, Paninian sandhi, and chhandas in anushtubh, gayatri, trishtubh or jagati), checks that every
-layer comes back exactly, reverts it, and lets Hindawi build and run the original and the reverted program so the outputs
-can be compared. The layers are sutram v11, written by Meta AI under the direction of Abhishek Choudhary, with the basic
-corrections in [docs/CORRECTIONS.md](docs/CORRECTIONS.md).
+**chandah** raises a Sanskrit C or C++ program, as Hindawi writes it, to chandah through the sutram layers (a word for
+every symbol, katapayadi numerals, samasa, sandhi, and chhandas in anushtubh, gayatri, trishtubh or jagati), lowers it
+back to compilable Sanskrit C, and lets Hindawi build and run both. The layers are sutram v11, written by Meta AI under the
+direction of Abhishek Choudhary, with two corrections ([docs/CORRECTIONS.md](docs/CORRECTIONS.md)) and a completion that
+carries every token of Sanskrit C and C++ ([docs/COMPLETION.md](docs/COMPLETION.md)).
 
 ```
 pip install chandah-ilm
-chandah stages program.c       # every layer, each checked on the way back
-chandah revert program.c       # to chandah and back, then built and run by Hindawi, original and reverted compared
+chandah raise prog.c --structure chhandas_anushtubh --sandhi    # prog.c.chandah and its metadata
+chandah lower prog.c.chandah                                    # prog.lowered.c, compilable Sanskrit C
+chandah run prog.lowered.c                                      # built and run by Hindawi
+chandah check prog.c                                            # all 26 paths there and back, and Hindawi's build
 ```
 
 Open it in a notebook: [the chandah notebook](https://colab.research.google.com/github/project-ilm/chandah/blob/main/notebooks/chandah_sanskrit.ipynb),
-which is Hindawi 2026.10's Sanskrit notebook with chandah added beside the IDE, in the C and C++ practice sections, and in
-its own explanation. The manual, corrected: [docs/MANUAL.md](docs/MANUAL.md).
+Hindawi 2026.10's Sanskrit notebook with one IDE: Hindawi's own, with Raise to chandah, Lower to Sanskrit C and Check
+every path beneath its editor. The manual: [docs/MANUAL.md](docs/MANUAL.md).
 
-## What it covers, as measured
+## What it carries, as measured
 
-The notebook's binary search comes back exactly through every layer with katapayadi numerals (13 of 13 combinations), and
-Hindawi builds and runs the original and the reverted program with the same output. v11's parser covers a small part of
-Sanskrit C (docs/MANUAL.md, Coverage): one program of the 114 in Hindawi's Sanskrit GATE gallery, and no C++. A program
-outside it is refused by name, never half-converted.
+Every Sanskrit C and C++ sample of Hindawi 2026.10, 116 programs (`samples/`), through all 26 paths: each comes back
+exactly, with no symbol left in the chandah, and Hindawi builds and runs the original and the lowered program with the
+same output. Meta AI's acceptance test passes.
 
 ## Where it sits
 

@@ -1,5 +1,5 @@
 # © 1993–2026 Abhishek Choudhary. All rights reserved. AyeAI. Written by Meta AI under his direction (sutram v11),
-# kept as given apart from these two lines and the corrections recorded in docs/CORRECTIONS.md.
+# kept as given apart from these lines, the corrections in docs/CORRECTIONS.md and the completion below its marker.
 _AR = "०१२३४५६७८९"
 _EN = "0123456789"
 _EN2AR = str.maketrans(_EN, _AR)
