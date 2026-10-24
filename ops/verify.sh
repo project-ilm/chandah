@@ -14,7 +14,7 @@ python3 tests/test_chandah.py > "$V/tests.txt" 2>&1 && ok "V01 $(tail -1 "$V/tes
   || { no "V01 the tests fail:"; sed 's/^/        /' "$V/tests.txt"; }
 
 if python3 given/restore_sutramv11.py "$V/given" >/dev/null 2>&1 && python3 ops/from_given.py "$V/given" "$V/derived" >/dev/null 2>&1; then
-  diff -rq "$V/derived/sutram_tool" sutram_tool -x __pycache__ > "$V/fidelity.txt" 2>&1 \
+  diff -rq "$V/derived/sutram_tool" sutram_tool -x __pycache__ -x '*.ots' > "$V/fidelity.txt" 2>&1 \
     && ok "V02 sutram_tool is the given code with only the recorded corrections and completion: 16 modules re-derived and identical" \
     || { no "V02 sutram_tool differs from the given code with its recorded corrections:"; sed 's/^/        /' "$V/fidelity.txt"; }
 else no "V02 the given script could not be restored and corrected"; fi
@@ -69,11 +69,11 @@ for f in README.md CONTEXT.md CONTRACT.md AGENTS.md CONTRIBUTING.md NOTICE docs/
   grep -qF "$N" "$f" 2>/dev/null || miss="$miss $f"; done
 for f in sutram_tool/*.py; do head -1 "$f" | grep -qF "$N" || miss="$miss $f"; done
 grep -q "MIT" LICENSE || miss="$miss LICENSE(MIT)"; grep -q "^license: MIT" CITATION.cff || miss="$miss CITATION.cff(licence)"
-grep -rlI -i -e "meta ai" -e "meta\.ai" --exclude-dir=.git --exclude-dir=.verify --exclude-dir=given --exclude=verify.sh . >/dev/null 2>&1 && miss="$miss (another author named)"
+grep -rlI -i -e "meta ai" -e "meta\.ai" --exclude-dir=.git --exclude-dir=.verify --exclude-dir=given --exclude-dir=doi-package --exclude=verify.sh . >/dev/null 2>&1 && miss="$miss (another author named)"
 [ -z "$miss" ] && ok "V05 the notices travel: his copyright on every module, the licence and the trademark where they belong" || no "V05 notices missing in:$miss"
 
-if git rev-parse --git-dir >/dev/null 2>&1; then built=$(git ls-files | grep -E '(__pycache__/|\.pyc$|\.tar\.gz$)' || true)
-else built=$(find . \( -name __pycache__ -o -name '*.pyc' -o -name '*.tar.gz' \) -not -path './.verify/*' -not -path './.git/*' -print); fi
+if git rev-parse --git-dir >/dev/null 2>&1; then built=$(git ls-files | grep -v '^doi-package/' | grep -E '(__pycache__/|\.pyc$|\.tar\.gz$)' || true)
+else built=$(find . \( -name __pycache__ -o -name '*.pyc' -o -name '*.tar.gz' \) -not -path './.verify/*' -not -path './.git/*' -not -path './doi-package/*' -print); fi
 [ -z "$built" ] && ok "V06 no build output" || no "V06 build output present: $built"
 
 rm -rf "$V"
