@@ -1,0 +1,8 @@
+{
+ "gate": "MINT",
+ "reason": "update",
+ "utc": "20261024T210722Z",
+ "commit": "949ac134292365864d22195dd37f4b687f7f537b",
+ "author_verified": true,
+ "note": "typing the gate is the author's verification"
+}
