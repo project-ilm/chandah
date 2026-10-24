@@ -9,7 +9,7 @@ version: 2026.10.1
 status: incubating
 origin: "sutram v11, his interim implementation, given 23 Oct 2026 (given/restore_sutramv11.py)"
 pypi: chandah-ilm
-doi: null            # recorded back by the seeder after the MINT gate
+doi: 10.5281/zenodo.23627172
 siblings:
   - hindawi2026.10   # the canon: writes, lowers, builds and runs the Sanskrit C (hindawiai)
   - ilm_sa           # the Sanskrit page whose notebook chandah's is derived from (project-ilm)

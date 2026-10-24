@@ -1,5 +1,7 @@
 # chandah: C to chandah and back, in every language Hindawi supports
 
+DOI (2026.10.1): [10.5281/zenodo.23627172](https://doi.org/10.5281/zenodo.23627172)
+
 **chandah** raises a C or C++ program, as Hindawi writes it in any of its languages, to chandah through the sutram layers
 (one short word for every symbol, katapayadi numerals, samasa, sandhi, and chhandas in anushtubh, gayatri, trishtubh or
 jagati), lowers it back to compilable form, and lets Hindawi build and run it, one program or a whole project.
